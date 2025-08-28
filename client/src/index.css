@@ -154,6 +154,65 @@ body {
   100% { transform: rotate(360deg); }
 }
 
+/* PDF Warning Button */
+.export-btn.pdf-warning {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  border-color: #f57c00;
+  position: relative;
+}
+
+.export-btn.pdf-warning:hover {
+  background: linear-gradient(135deg, #ff7043 0%, #d84315 100%);
+  border-color: #d84315;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+}
+
+.export-btn.pdf-warning::after {
+  content: 'Ограниченная поддержка кириллицы';
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 87, 34, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.export-btn.pdf-warning:hover::after {
+  opacity: 1;
+}
+
+/* Format Info */
+.format-info {
+  margin-top: 15px;
+  padding: 12px;
+  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+}
+
+.format-info p {
+  margin: 6px 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.format-info p:first-child {
+  color: #1976d2;
+}
+
+.format-info p:last-child {
+  color: #f57c00;
+}
+
 .error {
   background-color: #fee;
   color: #c33;

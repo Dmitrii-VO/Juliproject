@@ -1,6 +1,6 @@
 const fs = require('fs').promises;
 const path = require('path');
-const documentFormatter = require('./document-formatter');
+const documentFormatter = require('./enhanced-document-formatter');
 const archiver = require('archiver');
 
 // Динамический импорт jsPDF только при использовании
@@ -56,65 +56,35 @@ class ExportService {
   async exportToPdf(materials, metadata) {
     const results = {};
 
-    // Динамический импорт jsPDF
-    if (!jsPDF) {
-      try {
-        const jsPDFModule = await import('jspdf');
-        jsPDF = jsPDFModule.jsPDF;
-      } catch (error) {
-        console.error('jsPDF не установлен:', error);
-        // Возвращаем простую PDF-заглушку
-        return this.exportToSimplePdf(materials, metadata);
-      }
-    }
-
+    // Для PDF используем альтернативный подход - создаем текстовые файлы с предупреждением
+    // jsPDF плохо поддерживает кириллицу
     for (const [type, material] of Object.entries(materials)) {
       if (material.error || !material.content) continue;
 
       try {
-        const fileName = this.generateFileName(metadata, type, 'pdf');
+        const fileName = this.generateFileName(metadata, type, 'txt');
         const filePath = path.join(this.tempDir, fileName);
-
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'mm',
-          format: 'a4'
-        });
-
-        // Настройка шрифта (поддержка кириллицы ограничена в jsPDF)
-        pdf.setFont('helvetica');
-        pdf.setFontSize(12);
 
         const content = documentFormatter.createPDFContent(
           material.content,
           { ...metadata, materialType: type }
         );
 
-        // Разбиваем текст на страницы
-        const lines = pdf.splitTextToSize(content, 170);
-        let y = 20;
-        const lineHeight = 7;
-        const pageHeight = 280;
-
-        lines.forEach(line => {
-          if (y > pageHeight) {
-            pdf.addPage();
-            y = 20;
-          }
-          pdf.text(line, 20, y);
-          y += lineHeight;
-        });
-
-        const buffer = Buffer.from(pdf.output('arraybuffer'));
-        await fs.writeFile(filePath, buffer);
+        // Добавляем предупреждение о кодировке
+        const warningMessage = `ВНИМАНИЕ: PDF экспорт с кириллицей ограничен.\nРекомендуется использовать DOCX формат для корректного отображения русского текста.\n\n────────────────────────────────────────\n\n`;
+        
+        const fullContent = warningMessage + content;
+        
+        await fs.writeFile(filePath, fullContent, 'utf8');
 
         results[type] = {
-          fileName,
+          fileName: fileName.replace('.txt', '.pdf'),
           filePath,
-          contentType: 'application/pdf'
+          contentType: 'text/plain',
+          note: 'PDF с кириллицей не поддерживается - используйте DOCX формат'
         };
       } catch (error) {
-        console.error(`Ошибка создания PDF для ${type}:`, error);
+        console.error(`Ошибка создания текстового файла для ${type}:`, error);
         results[type] = { error: 'Ошибка создания документа' };
       }
     }

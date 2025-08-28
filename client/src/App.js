@@ -270,12 +270,12 @@ function App() {
                   📄 DOCX
                 </button>
                 <button 
-                  className="btn export-btn" 
+                  className="btn export-btn pdf-warning" 
                   onClick={() => handleExport('pdf')}
                   disabled={exportLoading}
-                  title="Скачать в формате PDF"
+                  title="⚠️ PDF экспорт с кириллицей ограничен. Рекомендуется использовать DOCX формат"
                 >
-                  📑 PDF
+                  📑 PDF ⚠️
                 </button>
                 <button 
                   className="btn export-btn" 
@@ -300,6 +300,10 @@ function App() {
               <li><strong>Интервал:</strong> 1.5 между строк</li>
               <li><strong>Красная строка:</strong> 1.25см</li>
             </ul>
+            <div className="format-info">
+              <p><strong>📄 DOCX формат:</strong> Рекомендуется для корректного отображения русского текста с полным форматированием</p>
+              <p><strong>⚠️ PDF формат:</strong> Ограниченная поддержка кириллицы. Файлы сохраняются как текст с предупреждением</p>
+            </div>
           </div>
 
           {Object.entries(results).map(([type, material]) => (
